@@ -1,0 +1,6 @@
+[submodule "RIOT"]
+	path = RIOT
+	url = https://github.com/RIOT-OS/RIOT
+[submodule "strato3"]
+	path = strato3
+	url = https://github.com/smlng/strato3
