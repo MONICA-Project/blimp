@@ -4,52 +4,10 @@
 // own
 #include "config.h"
 
-#define ENABLE_DEBUG 1
+#define ENABLE_DEBUG    (0)
 #include "debug.h"
 
 static sock_udp_ep_t remote;
-
-/*
- * Response callback.
- */
-static void _resp_handler(unsigned req_state, coap_pkt_t* pdu,
-                          sock_udp_ep_t *remote)
-{
-    DEBUG("[CoAP] %s\n", __func__);
-    (void)remote;       /* not interested in the source currently */
-
-    if (req_state == GCOAP_MEMO_TIMEOUT) {
-        printf("gcoap: timeout for msg ID %02u\n", coap_get_id(pdu));
-        return;
-    }
-    else if (req_state == GCOAP_MEMO_ERR) {
-        printf("gcoap: error in response\n");
-        return;
-    }
-
-    char *class_str = (coap_get_code_class(pdu) == COAP_CLASS_SUCCESS)
-                            ? "Success" : "Error";
-    printf("gcoap: response %s, code %1u.%02u", class_str,
-                                                coap_get_code_class(pdu),
-                                                coap_get_code_detail(pdu));
-    if (pdu->payload_len) {
-        unsigned content_type = coap_get_content_type(pdu);
-        if (content_type == COAP_FORMAT_TEXT
-                || content_type == COAP_FORMAT_LINK
-                || coap_get_code_class(pdu) == COAP_CLASS_CLIENT_FAILURE
-                || coap_get_code_class(pdu) == COAP_CLASS_SERVER_FAILURE) {
-            /* Expecting diagnostic payload in failure cases */
-            printf(", %u bytes\n%.*s\n", pdu->payload_len, pdu->payload_len,
-                                                          (char *)pdu->payload);
-        }
-        else {
-            printf(", %u bytes\n", pdu->payload_len);
-        }
-    }
-    else {
-        printf(", empty payload\n");
-    }
-}
 
 void coap_put_data(char *data, char *path)
 {
@@ -64,7 +22,7 @@ void coap_put_data(char *data, char *path)
 
     memcpy(pdu.payload, data, strlen(data));
     len = gcoap_finish(&pdu, strlen(data), COAP_FORMAT_JSON);
-    if (gcoap_req_send2(buf, len, &remote, _resp_handler) <= 0) {
+    if (gcoap_req_send2(buf, len, &remote, NULL) <= 0) {
         DEBUG("[CoAP] ERROR: send failed");
     }
 }
