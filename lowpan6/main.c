@@ -28,7 +28,6 @@ static char strbuf[STRBUF_LEN];
 extern int coap_init(void);
 extern void coap_put_data(char *data, char *path);
 
-
 static int comm_init(void)
 {
     DEBUG("[MAIN] %s\n", __func__);
@@ -74,26 +73,21 @@ int main(void)
         printf("\n.. read sensor data\n");
         if(strato_read(&data) == 0) {
             strato_print(&data);
-            /*
-            strato_json(&data, strbuf, STRBUF_LEN);
-            printf("%s\n", strbuf);
-            udp_send(BLIMP_PROXY_ADDR, BLIMP_PROXY_PORT, strbuf);
-            */
             /* send location */
             strato_json_ogc_l(&data, strbuf, STRBUF_LEN);
-            printf(" * LOCATION: %s\n", strbuf);
+            DEBUG(" * LOCATION: %s\n", strbuf);
             coap_put_data(strbuf, CONFIG_PATH_LOCATION);
             /* send humidity */
             strato_json_ogc_h(&data, strbuf, STRBUF_LEN);
-            printf(" * HUMIDITY: %s\n", strbuf);
+            DEBUG(" * HUMIDITY: %s\n", strbuf);
             coap_put_data(strbuf, CONFIG_PATH_HUMITIDY);
             /* send pressure */
             strato_json_ogc_p(&data, strbuf, STRBUF_LEN);
-            printf(" * PRESSURE: %s\n", strbuf);
+            DEBUG(" * PRESSURE: %s\n", strbuf);
             coap_put_data(strbuf, CONFIG_PATH_PRESSURE);
             /* send temperature */
             strato_json_ogc_t(&data, strbuf, STRBUF_LEN);
-            printf(" * TEMPERATURE: %s\n", strbuf);
+            DEBUG(" * TEMPERATURE: %s\n", strbuf);
             coap_put_data(strbuf, CONFIG_PATH_TEMPERATURE);
         }
         else {
